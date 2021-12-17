@@ -13,6 +13,9 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import { FormControl } from "@mui/material";
 import Button from "@mui/material/Button";
+import useSound from "use-sound";
+import RollSound from "./roll.mp3";
+import StopSound from "./stop.mp3";
 
 const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#A1341B"];
 // const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#f9dd50"];
@@ -44,9 +47,14 @@ export default function Roulette() {
   const [roulettoData, setRoulettoData] = useState<any[]>([]);
   const [isRoulettoDisplayed, setRoulettoDisplay] = useState(false);
 
+  const [playRollSound, { sound }] = useSound(RollSound);
+  const [playStopSound] = useSound(StopSound);
+
   const startRouletto = () => {
     setRoulettoDisplay(true);
     handleSpinClick();
+    sound.loop(true);
+    playRollSound();
   };
 
   const handleUserNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -174,7 +182,9 @@ export default function Roulette() {
               // perpendicularText
               textDistance={textDistance}
               onStopSpinning={() => {
+                sound.loop(false);
                 setMustSpin(false);
+                playStopSound();
               }}
             />
           </Grid>
