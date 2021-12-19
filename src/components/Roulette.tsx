@@ -19,7 +19,6 @@ import StopSound from "./stop.mp3";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 
-
 const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#A1341B"];
 // const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#f9dd50"];
 // const backgroundColors = ["#000000", "#FF3232"];
@@ -63,9 +62,6 @@ export default function Roulette() {
   const inputRef = useRef(null);
   const [inputError, setInputError] = useState(false);
   const [inputErrorText, setInputErrorText] = useState("");
-
-  const [playRollSound, { sound }] = useSound(RollSound);
-  const [playStopSound] = useSound(StopSound);
 
   const startRouletto = () => {
     if (processing.current) return;
