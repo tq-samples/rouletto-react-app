@@ -11,13 +11,18 @@ import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import { FormControl } from "@mui/material";
+import { FormControl, Paper } from "@mui/material";
 import Button from "@mui/material/Button";
 import useSound from "use-sound";
 import RollSound from "./roll.mp3";
 import StopSound from "./stop.mp3";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
+import Tab from "@mui/material/Tab";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
+import shuffle from "lodash.shuffle";
 
 const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#A1341B"];
 // const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#f9dd50"];
@@ -46,6 +51,7 @@ type PersonData = {
 };
 
 export default function Roulette() {
+  // variables & hooks
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [personList, setPersonList] = useState<PersonData[]>([]);
@@ -62,6 +68,35 @@ export default function Roulette() {
   const inputRef = useRef(null);
   const [inputError, setInputError] = useState(false);
   const [inputErrorText, setInputErrorText] = useState("");
+
+  const [value, setValue] = useState("1");
+
+  const [teamNum, setTeamNum] = useState(1);
+  const [teams, setTeams] = useState<any>([]);
+
+  // funcions
+  const sliceByLength = (array: string | any[], length: number) => {
+    const number = Math.round(array.length / length);
+    return new Array(length)
+      .fill(null)
+      .map((_, i) =>
+        array.slice(
+          i * number,
+          i === length - 1 ? array.length : (i + 1) * number
+        )
+      );
+  };
+
+  const shuffleList = () => {
+    // setData(shuffle(personList.map((v) => v.option)));
+    setTeams(sliceByLength(shuffle(personList.map((v) => v.option)), teamNum));
+  };
+
+  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+    setValue(newValue);
+  };
+
+  // const shuffleList = () => setPersonList(shuffle(personList));
 
   const startRouletto = () => {
     if (processing.current) return;
@@ -186,48 +221,118 @@ export default function Roulette() {
           </Grid>
         </Grid>
         <Grid item xs={7}>
-          <Grid container spacing={2} direction="column" alignItems="center">
-            <Grid item xs={2}>
-              <Button
-                variant="contained"
-                onClick={startRouletto}
-                sx={{ mr: 2 }}
+          <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+              <TabList onChange={handleChange} centered>
+                <Tab value="1" label="ルーレット" />
+                <Tab value="2" label="チーム決め" />
+              </TabList>
+            </Box>
+            <TabPanel value="1">
+              <Grid
+                container
+                spacing={2}
+                direction="column"
+                alignItems="center"
               >
-                Go!
-              </Button>
-              <Button variant="contained" onClick={reset}>
-                Reset
-              </Button>
-            </Grid>
-            <Grid item xs={12}>
-              {personList.length > 0 && (
-                <Wheel
-                  mustStartSpinning={mustSpin}
-                  prizeNumber={prizeNumber}
-                  data={personList}
-                  backgroundColors={backgroundColors}
-                  textColors={textColors}
-                  fontSize={fontSize}
-                  outerBorderColor={outerBorderColor}
-                  outerBorderWidth={outerBorderWidth}
-                  innerRadius={innerRadius}
-                  innerBorderColor={innerBorderColor}
-                  innerBorderWidth={innerBorderWidth}
-                  radiusLineColor={radiusLineColor}
-                  radiusLineWidth={radiusLineWidth}
-                  // perpendicularText
-                  textDistance={textDistance}
-                  onStopSpinning={() => {
-                    sound.loop(false);
-                    setMustSpin(false);
-                    playStopSound();
-                    setConfetti(true);
-                    processing.current = false;
-                  }}
-                />
-              )}
-            </Grid>
-          </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    variant="contained"
+                    onClick={startRouletto}
+                    sx={{ mr: 2 }}
+                  >
+                    Go!
+                  </Button>
+                  <Button variant="contained" onClick={reset}>
+                    Reset
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  {personList.length > 0 && (
+                    <Wheel
+                      mustStartSpinning={mustSpin}
+                      prizeNumber={prizeNumber}
+                      data={personList}
+                      backgroundColors={backgroundColors}
+                      textColors={textColors}
+                      fontSize={fontSize}
+                      outerBorderColor={outerBorderColor}
+                      outerBorderWidth={outerBorderWidth}
+                      innerRadius={innerRadius}
+                      innerBorderColor={innerBorderColor}
+                      innerBorderWidth={innerBorderWidth}
+                      radiusLineColor={radiusLineColor}
+                      radiusLineWidth={radiusLineWidth}
+                      // perpendicularText
+                      textDistance={textDistance}
+                      onStopSpinning={() => {
+                        sound.loop(false);
+                        setMustSpin(false);
+                        playStopSound();
+                        setConfetti(true);
+                        processing.current = false;
+                      }}
+                    />
+                  )}
+                </Grid>
+              </Grid>
+            </TabPanel>
+            <TabPanel value="2">
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    id="standard-number"
+                    label="チーム数"
+                    type="number"
+                    // InputLabelProps={{
+                    //   shrink: true,
+                    // }}
+                    defaultValue={1}
+                    InputProps={{
+                      inputProps: {
+                        max: 4,
+                        min: 1,
+                      },
+                    }}
+                    variant="standard"
+                    style={{ width: 100 }}
+                    onChange={(event) => setTeamNum(Number(event.target.value))}
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={shuffleList}
+                    sx={{ ml: 2 }}
+                  >
+                    GO!
+                  </Button>
+                </Grid>
+                {teams.map((team: any, teamIndex: number) => (
+                  <>
+                    <Grid item xs={12}>
+                      <h3>チーム{teamIndex + 1}</h3>
+                    </Grid>
+                    {team.map((d: any) => (
+                      <Grid item xs={4}>
+                        <Paper
+                          sx={{
+                            m: 1,
+                            backgroundColor: backgroundColors[teamIndex],
+                            color: "white",
+                            textAlign: "center",
+                            whiteSpace: "nowrap",
+                            height: 60,
+                            lineHeight: "60px",
+                          }}
+                        >
+                          {d}
+                        </Paper>
+                      </Grid>
+                    ))}
+                  </>
+                ))}
+              </Grid>
+            </TabPanel>
+          </TabContext>
         </Grid>
       </Grid>
       {confetti && <Confetti width={width} height={height} recycle={false} />}
