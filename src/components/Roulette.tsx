@@ -102,7 +102,7 @@ export default function Roulette() {
     if (processing.current) return;
     processing.current = true;
     handleSpinClick();
-    sound.loop(true);
+    // sound.loop(true);
     playRollSound();
   };
 
