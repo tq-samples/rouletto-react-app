@@ -23,6 +23,7 @@ import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import shuffle from "lodash.shuffle";
+import { Flipper, Flipped } from "react-flip-toolkit";
 
 const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#A1341B"];
 // const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#f9dd50"];
@@ -74,6 +75,8 @@ export default function Roulette() {
   const [teamNum, setTeamNum] = useState(1);
   const [teams, setTeams] = useState<any>([]);
 
+  const [data, setData] = useState<string[]>([]);
+
   // funcions
   const sliceByLength = (array: string | any[], length: number) => {
     const number = Math.round(array.length / length);
@@ -92,6 +95,10 @@ export default function Roulette() {
     setTeams(sliceByLength(shuffle(personList.map((v) => v.option)), teamNum));
   };
 
+  const shufflePerson = () => {
+    setData(shuffle(data));
+  };
+
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
@@ -104,6 +111,18 @@ export default function Roulette() {
     handleSpinClick();
     // sound.loop(true);
     playRollSound();
+  };
+
+  const startShuffle = async () => {
+    setConfetti(false);
+    playRollSound();
+    for (let i = 0; i < 5; i++) {
+      shufflePerson();
+      console.log(i);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    playStopSound();
+    setConfetti(true);
   };
 
   const handleUserNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,6 +142,7 @@ export default function Roulette() {
       return;
     }
     setPersonList([...personList, { option: userName }]);
+    setData([...data, userName]);
     setUserName("");
     setInputError(false);
     setInputErrorText("");
@@ -143,6 +163,7 @@ export default function Roulette() {
 
   const reset = () => {
     setPersonList([]);
+    setData([]);
   };
 
   const Demo = styled("div")(({ theme }) => ({
@@ -226,6 +247,7 @@ export default function Roulette() {
               <TabList onChange={handleChange} centered>
                 <Tab value="1" label="ルーレット" />
                 <Tab value="2" label="チーム決め" />
+                <Tab value="3" label="順番決め" />
               </TabList>
             </Box>
             <TabPanel value="1">
@@ -316,7 +338,7 @@ export default function Roulette() {
                         <Paper
                           sx={{
                             m: 1,
-                            backgroundColor: backgroundColors[teamIndex],
+                            backgroundColor: backgroundColors[teamIndex % 4],
                             color: "white",
                             textAlign: "center",
                             whiteSpace: "nowrap",
@@ -330,6 +352,52 @@ export default function Roulette() {
                     ))}
                   </>
                 ))}
+              </Grid>
+            </TabPanel>
+            <TabPanel value="3">
+              <Grid
+                container
+                spacing={2}
+                direction="column"
+                alignItems="center"
+              >
+                <Grid item xs={2}>
+                  <Button
+                    variant="contained"
+                    onClick={startShuffle}
+                    sx={{ mr: 2 }}
+                  >
+                    Go!
+                  </Button>
+                  <Button variant="contained" onClick={reset}>
+                    Reset
+                  </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Flipper flipKey={data.join("")}>
+                    {data.map((d: string, index: number) => (
+                      <Flipped key={d} flipId={d}>
+                        <Box
+                          sx={{
+                            width: 250,
+                            height: 45,
+                            backgroundColor: "#FFF",
+                            color: "#6091d3",
+                            fontWeight: "bold",
+                            borderRadius: 2,
+                            border: 3,
+                            borderColor: "#6091d3",
+                            textAlign: "center",
+                            lineHeight: 2.5,
+                            mt: 3,
+                          }}
+                        >
+                          {index + 1} : {d}
+                        </Box>
+                      </Flipped>
+                    ))}
+                  </Flipper>
+                </Grid>
               </Grid>
             </TabPanel>
           </TabContext>
