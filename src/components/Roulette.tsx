@@ -24,7 +24,6 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import shuffle from "lodash.shuffle";
 import { Flipper, Flipped } from "react-flip-toolkit";
-import { useLocalStorage } from "../localStorage";
 
 const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#A1341B"];
 // const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#f9dd50"];
