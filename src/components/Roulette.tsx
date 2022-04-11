@@ -57,7 +57,7 @@ export default function Roulette() {
   const [prizeNumber, setPrizeNumber] = useState(0);
   const [personList, setPersonList] = useState<PersonData[]>(() => {
     const saved = localStorage.getItem("personList");
-    const initialValue = JSON.parse(saved || "");
+    const initialValue = JSON.parse(saved || "[]");
     return initialValue;
   });
   const [userName, setUserName] = useState("");
@@ -81,7 +81,7 @@ export default function Roulette() {
 
   const [data, setData] = useState<string[]>(() => {
     const saved = localStorage.getItem("data");
-    const initialValue = JSON.parse(saved || "");
+    const initialValue = JSON.parse(saved || "[]");
     return initialValue;
   });
 
