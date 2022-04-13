@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Wheel } from "react-custom-roulette";
 import { styled } from "@mui/material/styles";
 import List from "@mui/material/List";
@@ -55,7 +55,11 @@ export default function Roulette() {
   // variables & hooks
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
-  const [personList, setPersonList] = useState<PersonData[]>([]);
+  const [personList, setPersonList] = useState<PersonData[]>(() => {
+    const saved = localStorage.getItem("personList");
+    const initialValue = JSON.parse(saved || "[]");
+    return initialValue;
+  });
   const [userName, setUserName] = useState("");
   // const [roulettoData, setRoulettoData] = useState<RoulettoData[]>([]);
 
@@ -75,19 +79,26 @@ export default function Roulette() {
   const [teamNum, setTeamNum] = useState(1);
   const [teams, setTeams] = useState<any>([]);
 
-  const [data, setData] = useState<string[]>([]);
+  const [data, setData] = useState<string[]>(() => {
+    const saved = localStorage.getItem("data");
+    const initialValue = JSON.parse(saved || "[]");
+    return initialValue;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("personList", JSON.stringify(personList));
+  }, [personList]);
+
+  useEffect(() => {
+    localStorage.setItem("data", JSON.stringify(data));
+  }, [data]);
 
   // funcions
   const sliceByLength = (array: string | any[], length: number) => {
     const number = Math.round(array.length / length);
     return new Array(length)
       .fill(null)
-      .map((_, i) =>
-        array.slice(
-          i * number,
-          i === length - 1 ? array.length : (i + 1) * number
-        )
-      );
+      .map((_, i) => array.slice(i * number, i === length - 1 ? array.length : (i + 1) * number));
   };
 
   const shuffleList = () => {
@@ -134,9 +145,7 @@ export default function Roulette() {
       setInputError(true);
       setInputErrorText("入力必須です");
       return;
-    } else if (
-      personList.findIndex(({ option }) => option === userName) !== -1
-    ) {
+    } else if (personList.findIndex(({ option }) => option === userName) !== -1) {
       setInputError(true);
       setInputErrorText("同じ名前が存在します");
       return;
@@ -152,6 +161,9 @@ export default function Roulette() {
     const newPersonList = [...personList];
     newPersonList.splice(index, 1);
     setPersonList(newPersonList);
+    const newData = [...data];
+    newData.splice(index, 1);
+    setData(newData);
   };
 
   const handleSpinClick = () => {
@@ -216,19 +228,16 @@ export default function Roulette() {
             候補者リスト
           </Typography>
 
-          <Grid xs={8} justifyContent="center">
+          <Grid item xs={8} justifyContent="center">
             <Demo>
               <List>
                 {personList.map((value, i) => {
                   return (
                     <ListItem
+                      key={value.option}
                       divider={true}
                       secondaryAction={
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={() => handleDeletePerson(i)}
-                        >
+                        <IconButton edge="end" aria-label="delete" onClick={() => handleDeletePerson(i)}>
                           <DeleteIcon />
                         </IconButton>
                       }
@@ -251,18 +260,9 @@ export default function Roulette() {
               </TabList>
             </Box>
             <TabPanel value="1">
-              <Grid
-                container
-                spacing={2}
-                direction="column"
-                alignItems="center"
-              >
+              <Grid container spacing={2} direction="column" alignItems="center">
                 <Grid item xs={2}>
-                  <Button
-                    variant="contained"
-                    onClick={startRouletto}
-                    sx={{ mr: 2 }}
-                  >
+                  <Button variant="contained" onClick={startRouletto} sx={{ mr: 2 }}>
                     Go!
                   </Button>
                   <Button variant="contained" onClick={reset}>
@@ -320,11 +320,7 @@ export default function Roulette() {
                     style={{ width: 100 }}
                     onChange={(event) => setTeamNum(Number(event.target.value))}
                   />
-                  <Button
-                    variant="contained"
-                    onClick={shuffleList}
-                    sx={{ ml: 2 }}
-                  >
+                  <Button variant="contained" onClick={shuffleList} sx={{ ml: 2 }}>
                     GO!
                   </Button>
                 </Grid>
@@ -355,18 +351,9 @@ export default function Roulette() {
               </Grid>
             </TabPanel>
             <TabPanel value="3">
-              <Grid
-                container
-                spacing={2}
-                direction="column"
-                alignItems="center"
-              >
+              <Grid container spacing={2} direction="column" alignItems="center">
                 <Grid item xs={2}>
-                  <Button
-                    variant="contained"
-                    onClick={startShuffle}
-                    sx={{ mr: 2 }}
-                  >
+                  <Button variant="contained" onClick={startShuffle} sx={{ mr: 2 }}>
                     Go!
                   </Button>
                   <Button variant="contained" onClick={reset}>
