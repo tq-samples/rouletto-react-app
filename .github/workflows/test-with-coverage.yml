@@ -1,4 +1,4 @@
-name: "test with coverage"
+name: "lint and test with coverage"
 on:
   pull_request:
     branches:
@@ -14,7 +14,31 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - uses: ArtiomTr/jest-coverage-report-action@v2
+      - name: Setup Node
+        uses: actions/setup-node@master
+        with:
+          node-version: "16.x"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install
+        run: yarn install
+
+      - name: Eslint
+        uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          eslint_flags: "src/**/*.{ts,tsx}"
+
+      - name: Test Coverage
+        uses: ArtiomTr/jest-coverage-report-action@v2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           package-manager: "yarn"
