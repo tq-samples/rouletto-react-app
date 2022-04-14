@@ -1,0 +1,21 @@
+name: "test with coverage"
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+jobs:
+  coverage:
+    permissions:
+      checks: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    steps:
+      - uses: actions/checkout@master
+
+      - uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          github-token: ${{ secrets.SECRET_TOKEN }}
+          package-manager: "yarn"
+          test-script: yarn test:coverage
