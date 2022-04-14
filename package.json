@@ -60,5 +60,12 @@
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^8.13.0",
     "eslint-plugin-react": "^7.29.4"
+  },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "./src/index.tsx",
+      "./src/reportWebVitals.ts"
+    ]
   }
+
 }
