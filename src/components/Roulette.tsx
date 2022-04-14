@@ -77,7 +77,7 @@ export default function Roulette() {
   const [value, setValue] = useState("1");
 
   const [teamNum, setTeamNum] = useState(1);
-  const [teams, setTeams] = useState<any>([]);
+  const [teamUsers, setTeamUsers] = useState<string[]>([]);
 
   const [data, setData] = useState<string[]>(() => {
     const saved = localStorage.getItem("data");
@@ -93,17 +93,9 @@ export default function Roulette() {
     localStorage.setItem("data", JSON.stringify(data));
   }, [data]);
 
-  // funcions
-  const sliceByLength = (array: string | any[], length: number) => {
-    const number = Math.round(array.length / length);
-    return new Array(length)
-      .fill(null)
-      .map((_, i) => array.slice(i * number, i === length - 1 ? array.length : (i + 1) * number));
-  };
-
   const shuffleList = () => {
     // setData(shuffle(personList.map((v) => v.option)));
-    setTeams(sliceByLength(shuffle(personList.map((v) => v.option)), teamNum));
+    setTeamUsers(shuffle(personList.map((v) => v.option)));
   };
 
   const shufflePerson = () => {
@@ -324,30 +316,35 @@ export default function Roulette() {
                     GO!
                   </Button>
                 </Grid>
-                {teams.map((team: any, teamIndex: number) => (
-                  <>
-                    <Grid item xs={12}>
-                      <h3>チーム{teamIndex + 1}</h3>
-                    </Grid>
-                    {team.map((d: any) => (
-                      <Grid item xs={4} key={d}>
-                        <Paper
-                          sx={{
-                            m: 1,
-                            backgroundColor: backgroundColors[teamIndex % 4],
-                            color: "white",
-                            textAlign: "center",
-                            whiteSpace: "nowrap",
-                            height: 60,
-                            lineHeight: "60px",
-                          }}
-                        >
-                          {d}
-                        </Paper>
+                {teamUsers.length !== 0 &&
+                  [...Array(teamNum)].map((_, i) => (
+                    <Grid item xs={12} key={i}>
+                      <h3>チーム{i + 1}</h3>
+                      <Grid container>
+                        {teamUsers.map(
+                          (user: string, index) =>
+                            i === index % teamNum && (
+                              <Grid item xs={4} key={user}>
+                                <Paper
+                                  key={user}
+                                  sx={{
+                                    m: 1,
+                                    backgroundColor: backgroundColors[i % 4],
+                                    color: "white",
+                                    textAlign: "center",
+                                    whiteSpace: "nowrap",
+                                    height: 60,
+                                    lineHeight: "60px",
+                                  }}
+                                >
+                                  {user}
+                                </Paper>
+                              </Grid>
+                            )
+                        )}
                       </Grid>
-                    ))}
-                  </>
-                ))}
+                    </Grid>
+                  ))}
               </Grid>
             </TabPanel>
             <TabPanel value="3">
