@@ -1,4 +1,4 @@
-name: "test with coverage"
+name: "lint and test with coverage"
 on:
   pull_request:
     branches:
@@ -13,6 +13,12 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - uses: actions/checkout@master
+
+      - uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          eslint_flags: "src/**/*.{ts,tsx}"
 
       - uses: ArtiomTr/jest-coverage-report-action@v2
         with:
