@@ -330,7 +330,7 @@ export default function Roulette() {
                       <h3>チーム{teamIndex + 1}</h3>
                     </Grid>
                     {team.map((d: any) => (
-                      <Grid item xs={4}>
+                      <Grid item xs={4} key={d}>
                         <Paper
                           sx={{
                             m: 1,
