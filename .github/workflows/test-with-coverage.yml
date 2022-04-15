@@ -14,6 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
+
+      - name: Setup Review Dog
+        uses: reviewdog/action-setup@v1
+        with:
+          reviewdog_version: latest
+
       - name: Setup Node
         uses: actions/setup-node@master
         with:
