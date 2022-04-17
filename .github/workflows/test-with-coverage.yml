@@ -42,6 +42,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
           eslint_flags: "src/**/*.{ts,tsx}"
+          filter_mode: "nofilter"
 
       - name: Test Coverage
         uses: ArtiomTr/jest-coverage-report-action@v2
