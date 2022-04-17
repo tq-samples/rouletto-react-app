@@ -11,12 +11,16 @@ import OrderingPage from "./pages/Ordering";
 const theme = createTheme();
 
 function App() {
+  const someString = "foo";
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Header />
       <Container component="main" maxWidth="lg">
-        <Paper variant="outlined" sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}>
+        <Paper
+          variant="outlined"
+          sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}
+        >
           <OrderingPage />
         </Paper>
       </Container>
