@@ -1,42 +1,35 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Wheel } from "react-custom-roulette";
+import React, { useRef, useState } from "react";
 import { styled } from "@mui/material/styles";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import DeleteIcon from "@mui/icons-material/Delete";
-import ListItemText from "@mui/material/ListItemText";
 import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import { FormControl, Paper } from "@mui/material";
-import Button from "@mui/material/Button";
+import DeleteIcon from "@mui/icons-material/Delete";
+import {
+  Box,
+  Grid,
+  Button,
+  FormControl,
+  Tab,
+  TextField,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+  IconButton,
+} from "@mui/material";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { Wheel } from "react-custom-roulette";
 import useSound from "use-sound";
 import RollSound from "./roll.mp3";
 import StopSound from "./stop.mp3";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
-import Tab from "@mui/material/Tab";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
-import shuffle from "lodash.shuffle";
-import { Flipper, Flipped } from "react-flip-toolkit";
+import DivideTeam from "./DivideTeam";
+import SortMember from "./SortMember";
+
+//custom hooks
+import { useMembers } from "../hooks/useMembers";
 
 const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#A1341B"];
-// const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#f9dd50"];
-// const backgroundColors = ["#000000", "#FF3232"];
-// const backgroundColors = [
-//   "#A1341B",
-//   "#B3ED58",
-//   "#ED6040",
-//   "#2860ED",
-//   "#2347A1",
-// ];
 const textColors = ["#FFFFFF"];
-// const textColors = ["#0b3351"];
 const outerBorderColor = "#eeeeee";
 const outerBorderWidth = 10;
 const innerBorderColor = "#30261a";
@@ -47,21 +40,11 @@ const radiusLineWidth = 8;
 const fontSize = 19;
 const textDistance = 60;
 
-type PersonData = {
-  option: string;
-};
-
 export default function Roulette() {
   // variables & hooks
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
-  const [personList, setPersonList] = useState<PersonData[]>(() => {
-    const saved = localStorage.getItem("personList");
-    const initialValue = JSON.parse(saved || "[]");
-    return initialValue;
-  });
   const [userName, setUserName] = useState("");
-  // const [roulettoData, setRoulettoData] = useState<RoulettoData[]>([]);
 
   const [playRollSound, { sound }] = useSound(RollSound);
   const [playStopSound] = useSound(StopSound);
@@ -76,56 +59,15 @@ export default function Roulette() {
 
   const [value, setValue] = useState("1");
 
-  const [teamNum, setTeamNum] = useState(1);
-  const [teamUsers, setTeamUsers] = useState<string[]>([]);
-
-  const [data, setData] = useState<string[]>(() => {
-    const saved = localStorage.getItem("data");
-    const initialValue = JSON.parse(saved || "[]");
-    return initialValue;
-  });
-
-  useEffect(() => {
-    localStorage.setItem("personList", JSON.stringify(personList));
-  }, [personList]);
-
-  useEffect(() => {
-    localStorage.setItem("data", JSON.stringify(data));
-  }, [data]);
-
-  const shuffleList = () => {
-    // setData(shuffle(personList.map((v) => v.option)));
-    setTeamUsers(shuffle(personList.map((v) => v.option)));
-  };
-
-  const shufflePerson = () => {
-    setData(shuffle(data));
-  };
-
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
-
-  // const shuffleList = () => setPersonList(shuffle(personList));
 
   const startRouletto = () => {
     if (processing.current) return;
     processing.current = true;
     handleSpinClick();
-    // sound.loop(true);
-    playRollSound();
-  };
-
-  const startShuffle = async () => {
-    setConfetti(false);
-    playRollSound();
-    for (let i = 0; i < 5; i++) {
-      shufflePerson();
-      console.log(i);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    }
-    playStopSound();
-    setConfetti(true);
+    startRoll();
   };
 
   const handleUserNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,42 +79,51 @@ export default function Roulette() {
       setInputError(true);
       setInputErrorText("入力必須です");
       return;
-    } else if (personList.findIndex(({ option }) => option === userName) !== -1) {
+    } else if (members.findIndex(({ option }) => option === userName) !== -1) {
       setInputError(true);
       setInputErrorText("同じ名前が存在します");
       return;
     }
-    setPersonList([...personList, { option: userName }]);
-    setData([...data, userName]);
     setUserName("");
     setInputError(false);
     setInputErrorText("");
+    addMember({ option: userName });
   };
 
   const handleDeletePerson = (index: number) => {
-    const newPersonList = [...personList];
-    newPersonList.splice(index, 1);
-    setPersonList(newPersonList);
-    const newData = [...data];
-    newData.splice(index, 1);
-    setData(newData);
+    deleteMember(index);
   };
 
   const handleSpinClick = () => {
-    const newPrizeNumber = Math.floor(Math.random() * personList.length);
+    const newPrizeNumber = Math.floor(Math.random() * members.length);
     setPrizeNumber(newPrizeNumber);
     setMustSpin(true);
-    setConfetti(false);
   };
 
   const reset = () => {
-    setPersonList([]);
-    setData([]);
+    setMembers([]);
   };
 
   const Demo = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
   }));
+
+  const [members, { setMembers, addMember, deleteMember }] = useMembers();
+
+  const startRoll = async () => {
+    setConfetti(false);
+    playRollSound();
+  };
+
+  const startCountdown = async () => {
+    setConfetti(false);
+    playRollSound();
+    for (let i = 0; i < 5; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    playStopSound();
+    setConfetti(true);
+  };
 
   return (
     <React.Fragment>
@@ -223,10 +174,10 @@ export default function Roulette() {
           <Grid item xs={8} justifyContent="center">
             <Demo>
               <List>
-                {personList.map((value, i) => {
+                {members.map((v, i) => {
                   return (
                     <ListItem
-                      key={value.option}
+                      key={v.option}
                       divider={true}
                       secondaryAction={
                         <IconButton edge="end" aria-label="delete" onClick={() => handleDeletePerson(i)}>
@@ -234,7 +185,7 @@ export default function Roulette() {
                         </IconButton>
                       }
                     >
-                      <ListItemText primary={value.option} />
+                      <ListItemText primary={v.option} />
                     </ListItem>
                   );
                 })}
@@ -262,11 +213,11 @@ export default function Roulette() {
                   </Button>
                 </Grid>
                 <Grid item xs={12}>
-                  {personList.length > 0 && (
+                  {members.length > 0 && (
                     <Wheel
                       mustStartSpinning={mustSpin}
                       prizeNumber={prizeNumber}
-                      data={personList}
+                      data={members}
                       backgroundColors={backgroundColors}
                       textColors={textColors}
                       fontSize={fontSize}
@@ -292,97 +243,10 @@ export default function Roulette() {
               </Grid>
             </TabPanel>
             <TabPanel value="2">
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    id="standard-number"
-                    label="チーム数"
-                    type="number"
-                    // InputLabelProps={{
-                    //   shrink: true,
-                    // }}
-                    defaultValue={1}
-                    InputProps={{
-                      inputProps: {
-                        max: 4,
-                        min: 1,
-                      },
-                    }}
-                    variant="standard"
-                    style={{ width: 100 }}
-                    onChange={(event) => setTeamNum(Number(event.target.value))}
-                  />
-                  <Button variant="contained" onClick={shuffleList} sx={{ ml: 2 }}>
-                    GO!
-                  </Button>
-                </Grid>
-                {teamUsers.length !== 0 &&
-                  [...Array(teamNum)].map((_, i) => (
-                    <Grid item xs={12} key={i}>
-                      <h3>チーム{i + 1}</h3>
-                      <Grid container>
-                        {teamUsers.map(
-                          (user: string, index) =>
-                            i === index % teamNum && (
-                              <Grid item xs={4} key={user}>
-                                <Paper
-                                  key={user}
-                                  sx={{
-                                    m: 1,
-                                    backgroundColor: backgroundColors[i % 4],
-                                    color: "white",
-                                    textAlign: "center",
-                                    whiteSpace: "nowrap",
-                                    height: 60,
-                                    lineHeight: "60px",
-                                  }}
-                                >
-                                  {user}
-                                </Paper>
-                              </Grid>
-                            )
-                        )}
-                      </Grid>
-                    </Grid>
-                  ))}
-              </Grid>
+              <DivideTeam members={members} backgroundColors={backgroundColors} />
             </TabPanel>
             <TabPanel value="3">
-              <Grid container spacing={2} direction="column" alignItems="center">
-                <Grid item xs={2}>
-                  <Button variant="contained" onClick={startShuffle} sx={{ mr: 2 }}>
-                    Go!
-                  </Button>
-                  <Button variant="contained" onClick={reset}>
-                    Reset
-                  </Button>
-                </Grid>
-                <Grid item xs={12}>
-                  <Flipper flipKey={data.join("")}>
-                    {data.map((d: string, index: number) => (
-                      <Flipped key={d} flipId={d}>
-                        <Box
-                          sx={{
-                            width: 250,
-                            height: 45,
-                            backgroundColor: "#FFF",
-                            color: "#6091d3",
-                            fontWeight: "bold",
-                            borderRadius: 2,
-                            border: 3,
-                            borderColor: "#6091d3",
-                            textAlign: "center",
-                            lineHeight: 2.5,
-                            mt: 3,
-                          }}
-                        >
-                          {index + 1} : {d}
-                        </Box>
-                      </Flipped>
-                    ))}
-                  </Flipper>
-                </Grid>
-              </Grid>
+              {members.length > 0 && <SortMember members={members} startCountdown={startCountdown} />}
             </TabPanel>
           </TabContext>
         </Grid>
