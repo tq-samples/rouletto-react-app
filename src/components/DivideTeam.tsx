@@ -35,7 +35,7 @@ function DivideTeam({ members, backgroundColors }: divideTeamProps) {
           onChange={(event) => setTeamNum(Number(event.target.value))}
         />
         <Button variant="contained" onClick={shuffleList} sx={{ ml: 2 }}>
-          GO!
+          Go!
         </Button>
       </Grid>
       {teamUsers.length !== 0 &&
