@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export type PersonData = {
   option: string;
 };
+
+// type ReturnType = [PersonData[], void, void, void];
 export const useMembers = () => {
   const [members, setMembers] = useState<PersonData[]>(() => {
     const saved = localStorage.getItem("personList");
@@ -14,13 +16,18 @@ export const useMembers = () => {
     localStorage.setItem("personList", JSON.stringify(members));
   }, [members]);
 
-  const addMember = (member: PersonData) => setMembers([...members, member]);
+  const addMember = useCallback((member: PersonData) => setMembers([...members, member]), [members]);
 
-  const deleteMember = (index: number) => {
-    const newMembers = [...members];
-    newMembers.splice(index, 1);
-    setMembers(newMembers);
-  };
+  const deleteMember = useCallback(
+    (index: number) => {
+      const newMembers = [...members];
+      newMembers.splice(index, 1);
+      setMembers(newMembers);
+    },
+    [members]
+  );
 
-  return [members, { setMembers, addMember, deleteMember }] as const;
+  const resetMember = useCallback(() => setMembers([]), [members]);
+
+  return [members, { addMember, deleteMember, resetMember }] as const;
 };

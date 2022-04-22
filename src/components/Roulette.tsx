@@ -59,6 +59,9 @@ export default function Roulette() {
 
   const [value, setValue] = useState("1");
 
+  const [members, { addMember, deleteMember, resetMember }] = useMembers();
+
+  // functions
   const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setValue(newValue);
   };
@@ -101,14 +104,12 @@ export default function Roulette() {
   };
 
   const reset = () => {
-    setMembers([]);
+    resetMember();
   };
 
   const Demo = styled("div")(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
   }));
-
-  const [members, { setMembers, addMember, deleteMember }] = useMembers();
 
   const startRoll = async () => {
     setConfetti(false);
