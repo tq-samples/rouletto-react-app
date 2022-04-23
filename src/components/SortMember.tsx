@@ -4,12 +4,12 @@ import React, { useEffect, useState } from "react";
 import { Flipped, Flipper } from "react-flip-toolkit";
 import { PersonData } from "../hooks/useMembers";
 
-interface sortMemberProps {
+type sortMemberProps = {
   members: PersonData[];
-  startCountdown: () => void;
-}
+  startRollAndStop: () => void;
+};
 
-function SortMember({ members, startCountdown }: sortMemberProps) {
+function SortMember({ members, startRollAndStop }: sortMemberProps) {
   const [shuffledMembers, setShuffledMembers] = useState<PersonData[]>([]);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ function SortMember({ members, startCountdown }: sortMemberProps) {
   }, [members]);
 
   const startShuffle = async () => {
-    startCountdown();
+    startRollAndStop();
     for (let i = 0; i < 5; i++) {
       setShuffledMembers(shuffle(members));
       await new Promise((resolve) => setTimeout(resolve, 2000));

@@ -3,10 +3,10 @@ import { Button, Grid, TextField, Paper } from "@mui/material";
 import { PersonData } from "../hooks/useMembers";
 import shuffle from "lodash.shuffle";
 
-interface divideTeamProps {
+type divideTeamProps = {
   members: PersonData[];
   backgroundColors: string[];
-}
+};
 
 function DivideTeam({ members, backgroundColors }: divideTeamProps) {
   const [teamNum, setTeamNum] = useState(1);
@@ -17,8 +17,8 @@ function DivideTeam({ members, backgroundColors }: divideTeamProps) {
   };
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
+    <Grid container spacing={2} justifyContent="center">
+      <Grid item xs={6}>
         <TextField
           id="standard-number"
           label="チーム数(最大4)"

@@ -1,22 +1,33 @@
 import React from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import Roulette from "./Roulette";
+import { PersonData } from "../hooks/useMembers";
+
+const members: PersonData[] = [{ option: "test" }];
+const backgroundColors = ["#ff8f43", "#70bbe0", "#0b3351", "#A1341B"];
+const startRoll = jest.fn();
+const stopRoll = jest.fn();
 
 afterEach(() => cleanup());
 
 describe("描画", () => {
-  test("初期表示", () => {
-    render(<Roulette />);
+  test("GOボタンとBoxが表示される", () => {
+    render(<Roulette members={members} backgroundColors={backgroundColors} startRoll={startRoll} stopRoll={stopRoll} />);
     // screen.debug();
-    expect(screen.getByText("候補者を入力してください。")).toBeTruthy();
-    expect(screen.getByLabelText("候補者")).toBeTruthy();
-    expect(screen.getByText("候補者リスト")).toBeTruthy();
-    expect(screen.getByText("ルーレット")).toBeTruthy();
-    expect(screen.getByText("チーム決め")).toBeTruthy();
-    expect(screen.getByText("順番決め")).toBeTruthy();
-    expect(screen.getAllByRole("button")[0]).toBeTruthy();
-    expect(screen.getAllByRole("button")[1]).toBeTruthy();
+    expect(screen.getByRole("button")).toBeTruthy();
     expect(screen.getByText("Go!")).toBeTruthy();
-    expect(screen.getByText("Reset")).toBeTruthy();
+  });
+});
+
+describe("Goボタンクリック", () => {
+  test("クリック(シャッフル)後もGOボタンが表示される", async () => {
+    render(<Roulette members={members} backgroundColors={backgroundColors} startRoll={startRoll} stopRoll={stopRoll} />);
+    // screen.debug();
+    const button = screen.getByRole("button");
+    fireEvent.click(button);
+    await waitFor(() => {
+      expect(screen.getByRole("button")).toBeTruthy();
+      expect(screen.getByText("Go!")).toBeTruthy();
+    });
   });
 });

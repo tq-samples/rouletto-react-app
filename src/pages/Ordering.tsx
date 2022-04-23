@@ -1,7 +1,7 @@
 import * as React from "react";
 
-import Roulette from "../components/Roulette";
+import Ordering from "../components/Ordering";
 
 export default function OrderingPage() {
-  return <Roulette />;
+  return <Ordering />;
 }
