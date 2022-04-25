@@ -80,14 +80,14 @@ export default function Ordering() {
     resetMember();
   };
 
-  const startRoll = async () => {
-    setConfetti(false);
+  const startRoll = () => {
     playRollSound();
+    setConfetti(false);
   };
 
-  const stopRoll = async () => {
-    setConfetti(true);
+  const stopRoll = () => {
     playStopSound();
+    setConfetti(true);
   };
 
   const startRollAndStop = async () => {
